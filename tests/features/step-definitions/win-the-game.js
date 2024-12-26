@@ -1,5 +1,7 @@
 import { Given, When, Then } from '@cucumber/cucumber';
 import { expect } from 'chai';
+import {clickButton} from '../step-definitions/common/common.js';
+
 // import { By, until, Key } from 'selenium-webdriver';
 Given('that I have started the game by navigating to {string}', async function (url) {
   await this.driver.get(url);
@@ -10,7 +12,7 @@ Given('that I have started the game by navigating to {string}', async function (
 });
 
 // Note: This step checks both health, money and consumed espresso shots....
-Then('the value of my {string} should be {float}', async function (statusType, expectedNumValue) {
+ Then('the value of my {string} should be {float}', async function (statusType, expectedNumValue) {
   // Translate statusType (Health, Money, Espressos) to cssSelector (.health, .money., .espressoCups)
   let cssSelector = '.' + statusType.toLowerCase();
   if (cssSelector === '.espressos') { cssSelector = '.espressocups'; }
@@ -21,16 +23,7 @@ Then('the value of my {string} should be {float}', async function (statusType, e
   let numValue = +(await element.getText());
   // Check world the value is correct
   expect(numValue).to.equal(expectedNumValue);
-});
-
-Then('my hipster bag should contain {string}', async function (expectedBagContent) {
-  // Get the element with the bag content
-  let bagElement = await this.get('.bag-content');
-  // Get the text and trim from spaces at beginning and end
-  let bagContent = (await bagElement.getText()).trim();
-  // Check the bag content is correct
-  expect(bagContent).to.equal(expectedBagContent);
-});
+}); 
 
 Given('my position is {string}', async function (position) {
   this.position = position;
@@ -57,39 +50,32 @@ Given('my position is {string}', async function (position) {
   }
 });
 
-Given('I make the choice to {string}', async function (choice) {
-  // Locate all menu items within the menu
-  const menuItems = await this.getMany('.choices ul li');
-
-  let itemFound = false;
-
-  // Iterate over the menu items to find the one matching the choice
-  for (const menuItem of menuItems) {
-    const text = await menuItem.getText();
-    if (text === choice) {
-      await menuItem.click();
-      itemFound = true;
-      console.log(`Selected the option: "${choice}"`);
-      break;
-    }
-  }
-
-  // Handle case where the option is not found
-  if (!itemFound) {
-    throw new Error(`Menu option "${choice}" not found`);
-  }
-});
+Given('I click on button {string}', async function (buttonText) {
+  await clickButton(buttonText);
+}); 
 
 Then('my position should be {string}', async function (a) {
   // TODO: implement step
 });
 
-Given('I know my current health', async function () {
-  const healthElement = await this.get('.health .progress .good .val');
+  When('I know my current {string}', async function (value) {
+  // Save initial value of a score in a global variable
+  if (value === 'Health') {
+    const healthElement = await this.get('.health .progress .good .val');
+    // Retrieve the text content, which is the health value
+    this.currentHealth = parseInt(await healthElement.getText(), 10);
+    console.log(`Current health is: ${this.currentHealth}`);
+  } else if (value === 'Money') {
+    const moneyElement = await this.get('.money .progress .bad .val');
+    this.currentMoney = parseInt(await moneyElement.getText(), 10);
+    console.log(`Current Money is: ${this.currentMoney}`);
 
-  // Retrieve the text content, which is the health value
-  this.currentHealth = parseInt(await healthElement.getText(), 10);
-  console.log(`Current health is: ${this.currentHealth}`);
+  } else if (value === 'Espressos') {
+    const espressoElement = await this.get('.espressocups .progress .bad .val');
+    this.currentEspresso = parseInt(await espressoElement.getText(), 10);
+    console.log(`Current Espresso is: ${this.currentEspresso}`);  } else {
+    throw new Error(`Unknown element: ${value}`);
+  }
 });
 
 When('I wait for the event {string} to take place', async function (a) {
@@ -116,3 +102,4 @@ Given('that I know my current menu choices', async function () {
 Then('I should be given the new choice {string}', async function (a) {
   // TODO: implement step
 });
+
