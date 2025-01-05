@@ -2,9 +2,6 @@
 
 In this workshop I tested Espresso Addict, a small text-based adventure game, using Selenium and Cucumber with a BDD approach. The workshop emphasized black-box testing, focusing solely on the browser interface to interact with the game's DOM elements without examining the internal game code.
 
-* Run **npm install** once.
-* Run the tests/feature-files with **npm test**.
-
 ## How to Install the Project and Run Tests
 
 ### 1. Clone the Repository:
